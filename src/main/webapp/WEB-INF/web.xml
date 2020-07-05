@@ -4,6 +4,7 @@
 
 <web-app>
   <display-name>Archetype Created Web Application</display-name>
+
   <servlet>
     <servlet-name>PostServlet</servlet-name>
     <servlet-class>ru.job4j.dream.servlet.PostServlet</servlet-class>
@@ -12,4 +13,15 @@
     <servlet-name>PostServlet</servlet-name>
     <url-pattern>/posts/save</url-pattern>
   </servlet-mapping>
+
+  <servlet>
+    <servlet-name>CandidateServlet</servlet-name>
+    <servlet-class>ru.job4j.dream.servlet.CandidateServlet</servlet-class>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>CandidateServlet</servlet-name>
+    <url-pattern>/candidates/save</url-pattern>
+  </servlet-mapping>
+
 </web-app>
+
