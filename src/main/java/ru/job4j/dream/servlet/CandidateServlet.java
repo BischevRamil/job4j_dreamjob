@@ -17,10 +17,11 @@ public class CandidateServlet extends HttpServlet {
         Store.instOf().saveCandidate(new Candidate(
                 Integer.parseInt(request.getParameter("id")),
                 request.getParameter("name")));
-        response.sendRedirect(request.getContextPath() + "/candidates/candidates.jsp");
+        response.sendRedirect(request.getContextPath() + "/candidates/candidates.do");
     }
 
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-
+        request.setAttribute("candidates", Store.instOf().findAllCandidates());
+        request.getRequestDispatcher("candidates.jsp").forward(request, response);
     }
 }

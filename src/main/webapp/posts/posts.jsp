@@ -8,6 +8,7 @@
 <%@ page contentType="text/html; charset=UTF-8" %>
 <%@ page import="ru.job4j.dream.store.Store" %>
 <%@ page import="ru.job4j.dream.model.Post" %>
+<%@ page import="java.util.Collection" %>
 <!doctype html>
 <html lang="en">
 <head>
@@ -44,17 +45,14 @@
                     </tr>
                     </thead>
                     <tbody>
-                    <% for (Post post : Store.instOf().findAllPosts()) { %>
+                    <% for (Post post : (Collection<Post>) request.getAttribute("posts")) { %>
                     <tr>
                         <td>
-                        <a href="<%=request.getContextPath()%>/posts/edit.jsp?id=<%=post.getId()%>">
-                            <i class="fa fa-edit mr-3"></i>
-                        </a>
-                        <%=post.getName()%>
+                            <a href="<%=request.getContextPath()%>/posts/edit.jsp?id=<%=post.getId()%>">
+                                <i class="fa fa-edit mr-3"></i>
+                            </a>
+                            <%=post.getName()%>
                         </td>
-                        <td><%= post.getName() %></td>
-                        <td><%= post.getDescription() %></td>
-                        <td><%= post.getCreated() %></td>
                     </tr>
                     <% } %>
                     </tbody>
