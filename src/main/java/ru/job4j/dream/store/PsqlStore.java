@@ -81,7 +81,7 @@ public class PsqlStore implements Store {
     public Collection<Candidate> findAllCandidates() {
         List<Candidate> candidates = new ArrayList<>();
         try (Connection cn = pool.getConnection();
-            PreparedStatement ps = cn.prepareStatement("SELECT * FROM candidates")
+            PreparedStatement ps = cn.prepareStatement("SELECT * FROM candidate")
         ) {
             try (ResultSet it = ps.executeQuery()) {
                 while (it.next()) {
@@ -112,20 +112,47 @@ public class PsqlStore implements Store {
         }
     }
 
-    /**
-     * Method check Post.getId in DB Postgres.
-     * @param post
-     * @return
-     */
-    private boolean checkId(Post post) {
-        Boolean result = false;
+    @Override
+    public void save(Candidate candidate) {
+        if (!checkId(candidate)) {
+            create(candidate);
+        } else {
+            update(candidate);
+        }
+    }
+
+    @Override
+    public Post findPostById(int id) {
+        Post result = null;
         try (Connection cn = pool.getConnection()) {
             Statement statement = cn.createStatement();
             ResultSet resultSet = statement.executeQuery("SELECT * FROM post");
             while (resultSet.next()) {
-                int id = resultSet.getInt(1);
-                if (id == post.getId()) {
-                    result = true;
+                if (id == resultSet.getInt("id")) {
+                    result = new Post(
+                            id,
+                            resultSet.getString("name"),
+                            resultSet.getString("description"),
+                            resultSet.getString("created"));
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return result;
+    }
+
+    @Override
+    public Candidate findCandidateById(int id) {
+        Candidate result = null;
+        try (Connection cn = pool.getConnection()) {
+            Statement statement = cn.createStatement();
+            ResultSet resultSet = statement.executeQuery("SELECT * FROM candidate");
+            while (resultSet.next()) {
+                if (id == resultSet.getInt("id")) {
+                    result = new Candidate(
+                            id,
+                            resultSet.getString("name"));
                 }
             }
         } catch (Exception e) {
@@ -151,6 +178,19 @@ public class PsqlStore implements Store {
         return post;
     }
 
+    private Candidate update(Candidate candidate) {
+        try (Connection cn = pool.getConnection();
+             PreparedStatement ps =  cn.prepareStatement(
+                     "UPDATE candidate SET name = ? WHERE id = ?")
+        ) {
+            ps.setString(1, candidate.getName());
+            ps.execute();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return candidate;
+    }
+
     private Post create(Post post) {
         try (Connection cn = pool.getConnection();
              PreparedStatement ps =  cn.prepareStatement(
@@ -171,8 +211,60 @@ public class PsqlStore implements Store {
         return post;
     }
 
-    @Override
-    public Post findById(int id) {
-        return null;
+    private Candidate create(Candidate candidate) {
+        try (Connection cn = pool.getConnection();
+             PreparedStatement ps =  cn.prepareStatement(
+                     "INSERT INTO candidate(name) VALUES (?)",
+                     PreparedStatement.RETURN_GENERATED_KEYS)
+        ) {
+            ps.setString(1, candidate.getName());
+            ps.execute();
+            ResultSet id = ps.getGeneratedKeys();
+            while (id.next()) {
+                candidate.setId(id.getInt(1));
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return candidate;
+    }
+
+    /**
+     * Method check Post.getId in DB Postgres.
+     * @param post
+     * @return
+     */
+    private boolean checkId(Post post) {
+        boolean result = false;
+        try (Connection cn = pool.getConnection()) {
+            Statement statement = cn.createStatement();
+            ResultSet resultSet = statement.executeQuery("SELECT * FROM post");
+            while (resultSet.next()) {
+                int id = resultSet.getInt(1);
+                if (id == post.getId()) {
+                    result = true;
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return result;
+    }
+
+    private boolean checkId(Candidate candidate) {
+        boolean result = false;
+        try (Connection cn = pool.getConnection()) {
+            Statement statement = cn.createStatement();
+            ResultSet resultSet = statement.executeQuery("SELECT * FROM candidate");
+            while (resultSet.next()) {
+                int id = resultSet.getInt(1);
+                if (id == candidate.getId()) {
+                    result = true;
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return result;
     }
 }

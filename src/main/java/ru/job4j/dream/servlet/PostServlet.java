@@ -2,6 +2,7 @@ package ru.job4j.dream.servlet;
 
 import ru.job4j.dream.model.Post;
 import ru.job4j.dream.store.MemStore;
+import ru.job4j.dream.store.PsqlStore;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
@@ -13,14 +14,14 @@ public class PostServlet extends HttpServlet {
 
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        request.setAttribute("posts", MemStore.instOf().findAllPosts());
+        request.setAttribute("posts", PsqlStore.instOf().findAllPosts());
         request.getRequestDispatcher("posts.jsp").forward(request, response);
     }
 
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         request.setCharacterEncoding("UTF-8");
-        MemStore.instOf().save(new Post(
+        PsqlStore.instOf().save(new Post(
                 Integer.parseInt(request.getParameter("id")),
                 request.getParameter("name"),
                 request.getParameter("description"),
